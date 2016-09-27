@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config>
+
+	<!-- Information about the tool provider (used to generate config.xml for the tool!)-->
+	<tool>
+		<name>See All Submissions</name>
+		<description>Allow students to see all of their submissions (and feedback)</description>
+		<id>smtech-see-all-submissions</id>
+		<authenticate>index.php</authenticate>
+
+		<!-- handler paths are relative to this configuration XML file -->
+		<handlers>
+			<base>index.php</base>
+		</handlers>
+
+		<!-- Where is the log file for the tool provider? (path relative to this XML file) -->
+		<log>logs/see-all-submissions.log</log>
+	</tool>
+
+	<!-- Credentials for MySQL database -->
+	<mysql>
+		<host>localhost</host>
+		<username>seeallsubs</username>
+		<password>s00p3r-s3kr37-pw0rd</password>
+		<database>seeallsubs</database>
+	</mysql>
+
+	<!-- Credentials for Canvas API (either <url> and <token> OR <key> and <secret> for OAuth token request) -->
+	<canvas>
+		<url>https://canvas.instructure.com</url>
+		<token>s00p3r-s3kr37-t0k3n</token>
+	</canvas>
+</config>

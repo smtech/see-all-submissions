@@ -6,32 +6,34 @@
     <div class="panel-group" id="assignments" role="tablist" aria-multiselectable="true">
         {foreach $assignments as $assignment}
             <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="assignment_{$assignment['id']}_heading">
+                <div class="panel-heading" role="tab" id="assignment_{$assignment['assignment']['id']}_heading">
                     <p>
-                        <a role="button" data-toggle="collapse" data-parent="#assignments" href="#assignment_{$assignment['id']}" aria-expanded="false" aria-controls="assignment_{$assignment['id']}">
-                            {$assignment['name']}
+                        <a role="button" data-toggle="collapse" data-parent="#assignments" href="#assignment_{$assignment['assignment']['id']}" aria-expanded="false" aria-controls="assignment_{$assignment['assignment']['id']}">
+                            {$assignment['assignment']['name']}
                             <span class="pull-right">
-                                due {$assignment['due_at']|date_format:'%B %e, %Y'}
+                                due {$assignment['assignment']['due_at']|date_format:'%B %e, %Y %l:%M %P'}
                             </span>
                         </a>
                     </p>
                 </div>
-                <div id="assignment_{$assignment['id']}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="assignment_{$assignment['id']}_heading">
+                <div id="assignment_{$assignment['assignment']['id']}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="assignment_{$assignment['assignment']['id']}_heading">
                     <div class="panel-body">
-                        <p>{$assignment['description']}</p>
-                        {foreach $submissions[$assignment['id']] as $submissionRoot}
-                            {foreach $submissionRoot['submission_history'] as $submission}
-                                {if $submission['submitted_at'] !== null}
-                                    <p>Submitted {$submission['submitted_at']|date_format:'%B %e, %Y'}</p>
-                                    {if $submission['submission_type'] == 'online_text_entry'}
-                                        <p>{$submission['body']}</p>
-                                    {else}
-                                        <div class="embed-responsive embed-responsive-16by9">
-                                            <iframe src="{$submission['preview_url']}" class="embed-responsive-item"></iframe>
-                                        </div>
+                        <p>{$assignment['assignment']['description']}</p>
+                        {foreach $assignment['submissions'] as $submission}
+                            <p>Submitted {$submission['submitted_at']|date_format:'%B %e, %Y %l:%M %P'}</p>
+                            {if !empty($submission['body'])}
+                                <p>{$submission['body']}</p>
+                            {else}
+                                {if !empty($submission['preview_url'])}
+                                    <iframe src="{$submission['preview_url']}"></iframe>
+                                {else}
+                                    {if !empty($submission['attachments'])}
+                                        {foreach $submission['attachments'] as $attachment}
+                                            <iframe src="{$attachment}"></iframe>
+                                        {/foreach}
                                     {/if}
                                 {/if}
-                            {/foreach}
+                            {/if}
                         {/foreach}
                     </div>
                 </div>

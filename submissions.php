@@ -29,24 +29,39 @@ function unborkPreviewUrl($previewUrl)
     }
 }
 
-$user = $toolbox->api_get('users/' . $_SESSION[ToolProvider::class]['canvas']['user_id']);
-
-$submissions = $toolbox->api_get(
-    'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/students/submissions',
+$enrollments = $toolbox->api_get(
+    'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/enrollments',
     [
-        'student_ids' => [$user['id']],
-        'include' => ['submission_history']
+        'user_id' => $_SESSION[ToolProvider::class]['canvas']['user_id']
     ]
 );
 
+$isStudent = false;
+foreach ($enrollments as $enrollment) {
+    if ($enrollment['type'] == 'StudentEnrollment') {
+        $isStudent = true;
+    }
+    if (empty($user)) {
+        $user = $enrollment['user'];
+    }
+}
+
 $assignments = [];
-foreach ($submissions as $submission) {
-    if (empty($assignments[$submission['assignment_id']])) {
+if ($isStudent) {
+    $submissions = $toolbox->api_get(
+        'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/students/submissions',
+        [
+            'student_ids' => [$user['id']],
+            'include' => ['submission_history']
+        ]
+    );
+
+    foreach ($submissions as $submission) {
         $assignment = $toolbox->api_get(
             'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . "/assignments/{$submission['assignment_id']}"
         );
         if (!in_array('not_graded', $assignment['submission_types'])) {
-            $assignments[$submission['assignment_id']]['assignment'] = $assignment;
+            $assignmentData['assignment'] = $assignment;
             foreach($submission['submission_history'] as $version) {
                 if (!empty($version['submitted_at'])) {
                     $versionData = [
@@ -68,9 +83,16 @@ foreach ($submissions as $submission) {
                             }
                         }*/
                     }
-                    $assignments[$submission['assignment_id']]['submissions'][$versionData['attempt']] = $versionData;
+                    if (!empty($versionData['body']) || !empty($versionData['preview_url']) || !empty($versionData['attachments'])) {
+                        $assignmentData['submissions'][$versionData['attempt']] = $versionData;
+                    }
                 }
             }
+            if (!empty($assignmentData['submissions'])) {
+                $assignments[$submission['assignment_id']] = $assignmentData;
+            }
+            unset($assignmentData);
+            unset($versionData);
         }
     }
 }
@@ -80,4 +102,8 @@ $toolbox->smarty_assign([
     'category' => $user['name'],
     'assignments' => $assignments,
 ]);
-$toolbox->smarty_display('submissions.tpl');
+if (empty($assignments)) {
+    $toolbox->smarty_display('no_submissions.tpl');
+} else {
+    $toolbox->smarty_display('submissions.tpl');
+}

@@ -51,6 +51,7 @@ if ($isStudent) {
     $submissions = $toolbox->api_get(
         'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/students/submissions',
         [
+            'as_user_id' => $user['id'],
             'student_ids' => [$user['id']],
             'include' => ['submission_history']
         ]
@@ -72,16 +73,13 @@ if ($isStudent) {
                     if ($version['submission_type'] == 'online_text_entry') {
                         $versionData['body'] = $version['body'];
                     } else {
-                        /*
-                        FIXME: per [case 01584858 ](https://cases.canvaslms.com/CommunityConsole?id=500A000000UPwauIAD) attachments are not well-documented and the Crocodoc attachments include an incomplete preview URL that works… but not in an IFRAME
                         if (empty($version['attachments'])) {
-                        */
                             $versionData['preview_url'] = unborkPreviewUrl($version['preview_url']);
-                        /*} else {
+                        } else {
                             foreach ($version['attachments'] as $attachment) {
                                 $versionData['attachments'][$attachment['id']] = unborkPreviewUrl($attachment['preview_url']);
                             }
-                        }*/
+                        }
                     }
                     if (!empty($versionData['body']) || !empty($versionData['preview_url']) || !empty($versionData['attachments'])) {
                         $assignmentData['submissions'][$versionData['attempt']] = $versionData;

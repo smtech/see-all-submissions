@@ -3,6 +3,7 @@
 require_once 'common.inc.php';
 
 use smtech\ReflexiveCanvasLTI\LTI\ToolProvider;
+use Battis\DataUtilities;
 
 /**
  * This is a quasi temporary "unborking" while a few support tickets are
@@ -74,10 +75,14 @@ if ($isStudent) {
                         $versionData['body'] = $version['body'];
                     } else {
                         if (empty($version['attachments'])) {
+                            $versionData['type'] = DataUtilities::titleCase(str_replace('_', ' ', $version['submission_type']));
                             $versionData['preview_url'] = unborkPreviewUrl($version['preview_url']);
                         } else {
                             foreach ($version['attachments'] as $attachment) {
-                                $versionData['attachments'][$attachment['id']] = unborkPreviewUrl($attachment['preview_url']);
+                                $versionData['attachments'][$attachment['id']] = [
+                                        'name' => $attachment['display_name'],
+                                        'preview_url' => unborkPreviewUrl($attachment['preview_url'])
+                                    ];
                             }
                         }
                     }

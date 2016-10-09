@@ -2,7 +2,8 @@
     "name": "smtech/see-all-submissions",
     "description": "Allow students to see all of their submissions (and feedback)",
     "require": {
-        "smtech/stmarks-reflexive-canvas-lti": "~0.2"
+        "smtech/stmarks-reflexive-canvas-lti": "~0.2",
+        "bower-asset/featherlight": "~1.5"
     },
     "license": "GPL-3.0",
     "authors": [

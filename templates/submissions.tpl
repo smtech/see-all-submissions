@@ -1,5 +1,13 @@
 {extends file="subpage.tpl"}
 
+{block name="post-bootstrap-stylesheets"}
+
+    <link href="//cdn.rawgit.com/noelboss/featherlight/1.5.0/release/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+{/block}
+
+{/block}
+
 {block name="subcontent"}
 
 <div class="container">
@@ -39,17 +47,15 @@
                                             {if !empty($submission['body'])}
                                                 <p>{$submission['body']}</p>
                                             {else}
-                                                <div class="embed-responsive embed-responsive-4by3">
-                                                    {if !empty($submission['preview_url'])}
-                                                        <iframe src="{$submission['preview_url']}" class="embed-responsive-item"></iframe>
-                                                    {else}
-                                                        {if !empty($submission['attachments'])}
-                                                            {foreach $submission['attachments'] as $attachment}
-                                                                <iframe src="{$attachment}" class="embed-responsive-item"></iframe>
-                                                            {/foreach}
-                                                        {/if}
+                                                {if !empty($submission['preview_url'])}
+                                                    <a href="{$submission['preview_url']}" data-featherlight="fiframe">See Submission</a>
+                                                {else}
+                                                    {if !empty($submission['attachments'])}
+                                                        {foreach $submission['attachments'] as $attachment}
+                                                            <a href="{$attachment}" data-featherlight="iframe">See Attachment</a>
+                                                        {/foreach}
                                                     {/if}
-                                                </div>
+                                                {/if}
                                             {/if}
                                         </div>
                                     </div>
@@ -62,5 +68,11 @@
         {/foreach}
     </div>
 </div>
+
+{/block}
+
+{block name="post-bootstrap-scripts"}
+
+    <script src="//cdn.rawgit.com/noelboss/featherlight/1.5.0/release/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
 
 {/block}

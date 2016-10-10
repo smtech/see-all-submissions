@@ -1,4 +1,4 @@
-# Seen All Submissions
+# See All Submissions
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/smtech/see-all-submissions/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/smtech/see-all-submissions/?branch=master)
 

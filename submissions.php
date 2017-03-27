@@ -5,30 +5,36 @@ require_once 'common.inc.php';
 use smtech\ReflexiveCanvasLTI\LTI\ToolProvider;
 use Battis\DataUtilities;
 
-$enrollments = $toolbox->api_get(
-    'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/enrollments',
-    [
-        'user_id' => $_SESSION[ToolProvider::class]['canvas']['user_id']
-    ]
-);
+$user = $toolbox->api_get('/users/' . $_SESSION[ToolProvider::class]['canvas']['user_id']);
 
-$isStudent = false;
-foreach ($enrollments as $enrollment) {
-    if ($enrollment['type'] == 'StudentEnrollment') {
-        $isStudent = true;
+/* load students, if the current user is not a student, i.e. a teacher */
+/* FIXME this is not an entirely safe assumption, of course */
+$students = [];
+if (!$_SESSION[ToolProvider::class]['isStudent']) {
+    $students = $toolbox->api_get(
+        '/courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/enrollments',
+        [
+            'type[]' => 'StudentEnrollment'
+        ]
+    );
+}
+
+$student = false;
+if (empty($_REQUEST['user_id'])) {
+    if ($_SESSION[ToolProvider::class]['isStudent']) {
+        $student = $user;
     }
-    if (empty($user)) {
-        $user = $enrollment['user'];
-    }
+} else {
+    $student = $toolbox->api_get("/users/{$_REQUEST['user_id']}");
 }
 
 $assignments = [];
-if ($isStudent) {
+if (!empty($student)) {
     $submissions = $toolbox->api_get(
         'courses/' . $_SESSION[ToolProvider::class]['canvas']['course_id'] . '/students/submissions',
         [
             'as_user_id' => $user['id'],
-            'student_ids' => [$user['id']],
+            'student_ids' => [$student['id']],
             'include' => ['submission_history']
         ]
     );
@@ -86,11 +92,10 @@ if ($isStudent) {
 
 $toolbox->smarty_assign([
     'name' => 'See All Submissions',
-    'category' => $user['name'],
+    'category' => $student['name'],
     'assignments' => $assignments,
+    'students' => $students,
+    'student' => $student
 ]);
-if (empty($assignments)) {
-    $toolbox->smarty_display('no_submissions.tpl');
-} else {
-    $toolbox->smarty_display('submissions.tpl');
-}
+
+$toolbox->smarty_display('submissions.tpl');
